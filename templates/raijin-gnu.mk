@@ -5,7 +5,7 @@
 # commands #
 ############
 FC = mpifort
-CC = mpiicc
+CC = mpicc
 CXX = g++
 LD = mpifort $(MAIN_PROGRAM)
 
