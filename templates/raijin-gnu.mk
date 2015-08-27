@@ -1,14 +1,13 @@
-# template for the GNU fortran compiler
+# $Id: gnu.mk,v 1.1.2.2 2012/07/06 19:02:12 Seth.Underwood Exp $
+# template for the Intel fortran compiler
 # typical use with mkmf
-# mkmf -t linux-gnu.mk -c"-Duse_libMPI -Duse_netCDF" path_names /usr/local/include
+# mkmf -t template.ifc -c"-Duse_libMPI -Duse_netCDF" path_names /usr/local/include
 ############
 # commands #
 ############
 FC = mpifort
 CC = mpicc
-CXX = g++
 LD = mpifort $(MAIN_PROGRAM)
-
 #########
 # flags #
 #########
@@ -17,23 +16,21 @@ REPRO =
 VERBOSE =
 OPENMP =
 
-MAKEFLAGS += --jobs=$(shell grep '^processor' /proc/cpuinfo | wc -l)
+MAKEFLAGS += --jobs=2
 
-FPPFLAGS :=
+FPPFLAGS := 
 
-FFLAGS := -fcray-pointer -fdefault-double-8 -fdefault-real-8 -Waliasing -ffree-line-length-none -fno-range-check
-FFLAGS += -I$(shell nc-config --includedir)
-FFLAGS_OPT = -O3
-FFLAGS_REPRO = -O2 -fbounds-check
-FFLAGS_DEBUG = -O0 -g -W -fbounds-check -fbacktrace
+FFLAGS := -fcray-pointer -fdefault-real-8 -fdefault-double-8 -Waliasing -ffree-line-length-none -fno-range-check
+FFLAGS_OPT = -O2 -fno-expensive-optimizations
+FFLAGS_REPRO = 
+FFLAGS_DEBUG = -O0 -g -W -fbounds-check 
 FFLAGS_OPENMP = -fopenmp
-FFLAGS_VERBOSE =
+FFLAGS_VERBOSE = 
 
-CFLAGS := -D__IFC
-CFLAGS += -I$(shell nc-config --includedir)
+CFLAGS := -D__IFC 
 CFLAGS_OPT = -O2
 CFLAGS_OPENMP = -fopenmp
-CFLAGS_DEBUG = -O0 -g
+CFLAGS_DEBUG = -O0 -g 
 
 # Optional Testing compile flags.  Mutually exclusive from DEBUG, REPRO, and OPT
 # *_TEST will match the production if no new option(s) is(are) to be tested.
@@ -42,12 +39,13 @@ CFLAGS_TEST = -O2
 
 LDFLAGS :=
 LDFLAGS_OPENMP := -fopenmp
-LDFLAGS_VERBOSE :=
+LDFLAGS_VERBOSE := 
 
 ifneq ($(REPRO),)
 CFLAGS += $(CFLAGS_REPRO)
 FFLAGS += $(FFLAGS_REPRO)
-else ifneq ($(DEBUG),)
+endif
+ifneq ($(DEBUG),)
 CFLAGS += $(CFLAGS_DEBUG)
 FFLAGS += $(FFLAGS_DEBUG)
 else ifneq ($(TEST),)
@@ -77,7 +75,9 @@ ifeq ($(NETCDF),3)
   endif
 endif
 
-LIBS := $(shell nc-config --flibs) $(shell pkg-config --libs mpich2-f90)
+LIBS :=
+
+LIBS += -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lz
 LDFLAGS += $(LIBS)
 
 #---------------------------------------------------------------------------

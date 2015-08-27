@@ -1,12 +1,12 @@
 # template for the Intel fortran compiler
 # typical use with mkmf
-# mkmf -t linux-intel.mk -c"-Duse_libMPI -Duse_netCDF" path_names /usr/local/include
+# mkmf -t template.ifc -c"-Duse_libMPI -Duse_netCDF" path_names /usr/local/include
 ############
 # commands #
 ############
 FC = mpifort
 CC = mpicc
-CXX = icpc
+CXX = CC
 LD = mpifort
 #########
 # flags #
@@ -16,31 +16,46 @@ REPRO =
 VERBOSE =
 OPENMP =
 
-MAKEFLAGS += --jobs=$(shell grep '^processor' /proc/cpuinfo | wc -l)
+##############################################
+# Need to use at least GNU Make version 3.81 #
+##############################################
+need := 3.81
+ok := $(filter $(need),$(firstword $(sort $(MAKE_VERSION) $(need))))
+ifneq ($(need),$(ok))
+$(error Need at least make version $(need).  Load module gmake/3.81)
+endif 
 
-FPPFLAGS := -fpp -Wp,-w
+MAKEFLAGS += --jobs=2
 
-FFLAGS := -fno-alias -stack_temps -safe_cray_ptr -ftz -i_dynamic -assume byterecl -i4 -r8 -nowarn -g -sox -traceback
-FFLAGS_OPT = -O2
-FFLAGS_REPRO = -fpmodel source -O2
-FFLAGS_DEBUG = -O0 -check -check noarg_temp_created -check nopointer -warn -warn noerrors -debug variable_locations -fpe0 -ftrapuv
+NETCDF_ROOT = $(NETCDF_DIR)
+MPI_ROOT    = $(MPICH_DIR)
+INCLUDE = -I$(NETCDF_ROOT)/include
+
+FPPFLAGS := -fpp -Wp,-w $(INCLUDE)
+
+FFLAGS := -fno-alias -auto -safe-cray-ptr -ftz -assume byterecl -i4 -r8 -nowarn -sox $(INCLUDE)
+FFLAGS_OPT = -O3 -debug minimal -fp-model precise -override-limits
+FFLAGS_DEBUG = -g -O0 -check -check noarg_temp_created -check nopointer -warn -warn noerrors -fpe0 -traceback -ftrapuv -assume nobuffered_io -gdwarf-2
+FFLAGS_REPRO = -O2 -debug minimal -fp-model precise -override-limits
 FFLAGS_OPENMP = -openmp
 FFLAGS_VERBOSE = -v -V -what
 
-
-CFLAGS := -D__IFC -sox -traceback
-CFLAGS_OPT = -O2
+CFLAGS := -D__IFC -sox
+CFLAGS_OPT = -O2 -debug minimal
 CFLAGS_OPENMP = -openmp
-CFLAGS_DEBUG = -O0 -g -ftrapuv
+CFLAGS_DEBUG = -O0 -g -ftrapuv -traceback
 
 # Optional Testing compile flags.  Mutually exclusive from DEBUG, REPRO, and OPT
 # *_TEST will match the production if no new option(s) is(are) to be tested.
-FFLAGS_TEST = -O2
+FFLAGS_TEST = -O3 -debug minimal -fp-model precise -override-limits
 CFLAGS_TEST = -O2
 
 LDFLAGS :=
 LDFLAGS_OPENMP := -openmp
 LDFLAGS_VERBOSE := -Wl,-V,--verbose,-cref,-M
+
+# start with blank LIBS
+LIBS :=
 
 ifneq ($(REPRO),)
 CFLAGS += $(CFLAGS_REPRO)
@@ -68,14 +83,7 @@ FFLAGS += $(FFLAGS_VERBOSE)
 LDFLAGS += $(LDFLAGS_VERBOSE)
 endif
 
-ifeq ($(NETCDF),3)
-  # add the use_LARGEFILE cppdef
-  ifneq ($(findstring -Duse_netCDF,$(CPPDEFS)),)
-    CPPDEFS += -Duse_LARGEFILE
-  endif
-endif
-
-LIBS := $(shell nc-config --flibs) $(shell pkg-config --libs mpich2-f90)
+LIBS += -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lz
 LDFLAGS += $(LIBS)
 
 #---------------------------------------------------------------------------
