@@ -37,7 +37,7 @@ CFLAGS_DEBUG = -O0 -g -DDEBUG
 FFLAGS_TEST = -O2
 CFLAGS_TEST = -O2
 
-LDFLAGS := -pg
+LDFLAGS := -pg -L/usr/lib/x86_64-linux-gnu/
 LDFLAGS_OPENMP := -fopenmp
 LDFLAGS_VERBOSE := 
 
@@ -77,7 +77,7 @@ endif
 
 LIBS :=
 
-LIBS += -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lz
+LIBS += -lnetcdff -lnetcdf -lhdf5_serial_hl -lhdf5_serial -lz
 LDFLAGS += $(LIBS)
 
 #---------------------------------------------------------------------------
