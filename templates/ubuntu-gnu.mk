@@ -23,7 +23,8 @@ FPPFLAGS := -I/usr/include
 FFLAGS := -fcray-pointer -fdefault-real-8 -fdefault-double-8 -Waliasing -ffree-line-length-none -fno-range-check
 FFLAGS_OPT = -O2 -fno-expensive-optimizations
 FFLAGS_REPRO = 
-FFLAGS_DEBUG = -O0 -g -W -fbounds-check -fbacktrace -fcheck-array-temporaries -ffpe-trap=invalid,zero,overflow
+#FFLAGS_DEBUG = -O0 -g -W -fbacktrace -fbounds-check -fcheck-array-temporaries -ffpe-trap=invalid,zero,overflow
+FFLAGS_DEBUG = -O0 -g -W -fbacktrace -fcheck-array-temporaries -ffpe-trap=invalid,zero,overflow
 FFLAGS_OPENMP = -fopenmp
 FFLAGS_VERBOSE = 
 
