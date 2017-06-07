@@ -77,7 +77,7 @@ endif
 
 LIBS :=
 
-LIBS += $(shell nc-config --libs)
+LIBS += $(shell nc-config --flibs) -Wl,-rpath=$(shell nc-config --libdir)
 LDFLAGS += $(LIBS)
 
 #---------------------------------------------------------------------------
