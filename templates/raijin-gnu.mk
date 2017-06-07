@@ -18,7 +18,7 @@ OPENMP =
 
 MAKEFLAGS += --jobs=2
 
-FPPFLAGS := 
+FPPFLAGS := -I$(shell nc-config --includedir)
 
 FFLAGS := -fcray-pointer -fdefault-real-8 -fdefault-double-8 -Waliasing -ffree-line-length-none -fno-range-check
 FFLAGS_OPT = -O2 -fno-expensive-optimizations
@@ -27,7 +27,7 @@ FFLAGS_DEBUG = -O0 -g -W -fbounds-check -fbacktrace
 FFLAGS_OPENMP = -fopenmp
 FFLAGS_VERBOSE = 
 
-CFLAGS := -D__IFC 
+CFLAGS := -D__IFC -I$(shell nc-config --includedir)
 CFLAGS_OPT = -O2
 CFLAGS_OPENMP = -fopenmp
 CFLAGS_DEBUG = -O0 -g 
@@ -77,7 +77,7 @@ endif
 
 LIBS :=
 
-LIBS += -lnetcdff -lnetcdf -lhdf5_hl -lhdf5 -lz
+LIBS += $(shell nc-config --libs)
 LDFLAGS += $(LIBS)
 
 #---------------------------------------------------------------------------
